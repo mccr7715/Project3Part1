@@ -40,7 +40,7 @@ app.get('/neighborhoods', (req, res) => {
 });
 
 // GET request handler for crime incidents
-app.get('/incidents', (req, res) => {
+app.get('api/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
     res.status(200).type('json').send({}); // <-- you will need to change this
