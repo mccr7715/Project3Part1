@@ -38,15 +38,18 @@ function parseQueryString(q_string) {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+
     
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
+    let query = 'SELECT Neighborhoods.neighborhood_number, Neighborhoods.neighborhood_name';
+    let params = [];
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    databaseSelect(query, params); // <-- you will need to change this
 });
 
 // GET request handler for crime incidents
@@ -102,7 +105,7 @@ app.put('/new-incident', (req, res) => {
 });
 
 // DELETE request handler for new crime incident
-app.delete('/remove-incident', (req, res) => {
+app.delete('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
