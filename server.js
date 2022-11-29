@@ -7,7 +7,7 @@ let express = require('express');
 let sqlite3 = require('sqlite3');
 
 
-let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
+let db_filename = path.join(__dirname, 'db', 'stpaul_crime_copy.sqlite3');
 
 let app = express();
 let port = 8000;
@@ -51,13 +51,12 @@ app.get('/neighborhoods', (req, res) => {
 
 // GET request handler for crime incidents
 app.get('/api/incidents', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
     
     let query = 'SELECT Incidents.case_number AS case_number, Incidents.date_time, Incidents.code, \
                 Incidents.incident, Incidents.police_grid, Incidents.neighborhood_number,\
                 Incidents.block FROM Incidents';
 
-    console.log(req.query);
+    console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let params = [];
     let clause = 'WHERE';
@@ -101,16 +100,46 @@ app.get('/api/incidents', (req, res) => {
 });
 
 // PUT request handler for new crime incident
-app.put('/new-incident', (req, res) => {
+app.put('/api/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
+    if (req.params.hasOwnProperty('case_number') && req.params.hasOwnProperty('date') &&
+    req.params.hasOwnProperty('time') && req.params.hasOwnProperty('code') && 
+    req.params.hasOwnProperty('incident') && req.params.hasOwnProperty('police_grid') &&
+    req.params.hasOwnProperty('neighborhood_number') && req.params.hasOwnProperty('block')) {
+        for (i = 0; i < rows.length; i++) {
+            if (rows[i].case_number == req.params.case_number) {
+                res.status(500);
+            }
+            else {
+                let query = 'INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
+                VALUES (' + req.params.case_number + ', ' + req.params.date + 'T' + req.params.time + ', ' + req.params.code + '\
+                , ' + req.params.incident + ', ' + req.params.police_grid + ', ' + req.params.neighborhood_number + '\
+                , ' + req.params.block + ')';
+
+                console.log()
+
+                db.all(query, params, (err, rows) => {
+                    console.log(err);
+                    console.log(rows);
+                    res.status(200).type('json').send(rows);
+                });
+            }
+        }
+    }
+    else {
+        res.status(200).type('txt').send('Error: Cannot add new incident');
+    }
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
 // DELETE request handler for new crime incident
-app.delete('/remove-incident', (req, res) => {
+app.delete('api/remove-incident/:case_number', (req, res) => {
     console.log(req.body); // uploaded data
     
+    databaseRun('DELETE FROM Incidents WHERE case_number = ', req.params.case_number);
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
