@@ -53,6 +53,7 @@ app.get('/neighborhoods', (req, res) => {
    
 
     if (req.query.hasOwnProperty('id')) {
+        console.log(req.query.id);
         query = query + ' ' + clause + ' Neighborhoods.neighborhood_number = ?';
         params.push(parseFloat(req.query.id));
         clause = 'AND';
