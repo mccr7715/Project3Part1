@@ -38,18 +38,15 @@ function parseQueryString(q_string) {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-
     
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
-    let query = 'SELECT Neighborhoods.neighborhood_number, Neighborhoods.neighborhood_name';
-    let params = [];
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    databaseSelect(query, params); // <-- you will need to change this
+    res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
 // GET request handler for crime incidents
@@ -88,6 +85,12 @@ app.get('/api/incidents', (req, res) => {
         clause = 'AND';
     }
 
+    if (req.query.hasOwnProperty('start_date')) {
+        query = query + ' ' + clause + ' Incidents.date_time = ?';
+        params.push(parseFloat(req.query.code));
+        clause = 'AND';
+    }
+
     db.all(query, params, (err, rows) => {
         console.log(err);
         console.log(rows);
@@ -105,7 +108,7 @@ app.put('/new-incident', (req, res) => {
 });
 
 // DELETE request handler for new crime incident
-app.delete('/new-incident', (req, res) => {
+app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
