@@ -24,6 +24,16 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
     }
 });
 
+function parseQueryString(q_string) {
+    let key_values = q_string.substring(1).split('&');
+    let i;
+    let query_obj = {};
+    for (i = 0; i < key_values.length; i++) {
+        let key_val = key_values[i].split('=');
+        query_obj[key_val[0]] = key_val[1];
+    }
+    return query_obj;
+}
 
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
@@ -40,10 +50,48 @@ app.get('/neighborhoods', (req, res) => {
 });
 
 // GET request handler for crime incidents
-app.get('api/incidents', (req, res) => {
+app.get('/api/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    let query = 'SELECT Incidents.case_number AS case_number, Incidents.date_time, Incidents.code, \
+                Incidents.incident, Incidents.police_grid, Incidents.neighborhood_number,\
+                Incidents.block FROM Incidents';
+
+    console.log(req.query);
+
+    let params = [];
+    let clause = 'WHERE';
+    /* if (req.query.hasOwnProperty('start_date')) {
+        query = query + ' ' + clause + ' Incidents.date_time = ?';
+        params.push(req.query.mfr.toUpperCase());
+        clause = 'AND';
+    }*/
+
+    if (req.query.hasOwnProperty('code')) {
+        query = query + ' ' + clause + ' Incidents.code = ?';
+        params.push(parseFloat(req.query.code));
+        clause = 'AND';
+    }
+
+    if (req.query.hasOwnProperty('grid')) {
+        query = query + ' ' + clause + ' Incidents.police_grid = ?';
+        params.push(parseFloat(req.query.grid));
+        clause = 'AND';
+    }
+
+    if (req.query.hasOwnProperty('neighborhood')) {
+        query = query + ' ' + clause + ' Incidents.neighborhood_number = ?';
+        params.push(parseFloat(req.query.neighborhood));
+        clause = 'AND';
+    }
+
+    db.all(query, params, (err, rows) => {
+        console.log(err);
+        console.log(rows);
+        res.status(200).type('json').send(rows);
+    });
+
+    /* res.status(200).type('json').send(databaseSelect(query, params)); // <-- you will need to change this*/
 });
 
 // PUT request handler for new crime incident
