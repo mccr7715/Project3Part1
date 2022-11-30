@@ -41,13 +41,15 @@ app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let params = [];
-    let clause = WHERE;
+    let clause = 'WHERE';
 
+    
     if (req.query.hasOwnProperty('code')) {
         query = query + ' ' + clause + ' Codes.code = ?';
         params.push(parseFloat(req.query.code));
 
         clause = 'AND';
+        
 
         /* //I think this would work for comma separated values 
         if (req.query.hasOwnProperty(',')) {
@@ -58,7 +60,7 @@ app.get('/codes', (req, res) => {
             }
         }
         */
-        
+      
     }
 
     db.all(query, params, (err, rows) => {
@@ -66,6 +68,7 @@ app.get('/codes', (req, res) => {
         console.log(rows);
         res.status(200).type('json').send(rows);
      });
+     
 });
 
 // GET request handler for neighborhoods
