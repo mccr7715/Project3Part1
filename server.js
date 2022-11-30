@@ -24,17 +24,6 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
     }
 });
 
-function parseQueryString(q_string) {
-    let key_values = q_string.substring(1).split('&');
-    let i;
-    let query_obj = {};
-    for (i = 0; i < key_values.length; i++) {
-        let key_val = key_values[i].split('=');
-        query_obj[key_val[0]] = key_val[1];
-    }
-    return query_obj;
-}
-
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     let query = 'SELECT Codes.code, Codes.incident_type FROM Codes';
@@ -111,17 +100,17 @@ app.get('/neighborhoods', (req, res) => {
     }
    
     if(req.query.hasOwnProperty('name')){
-        let split_name = req.query.name.split(',');
-        query = query + ' ' + clause + ' Neighborhoods.neighborhood_name IN (?';
+        let split_name = req.query.name.split(',');
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_name IN (?';
         params.push(split_name[0]);
-        if(split_name.length > 0) {
-            for(let j = 1; j < split_name.length; j++) {
-                query = query + ' , ?';
+        if(split_name.length > 0) {
+            for(let j = 1; j < split_name.length; j++) {
+                query = query + ' , ?';
                 params.push(split_name[1]);
             }
         }
-        query = query + ')';
-        clause = 'AND';
+        query = query + ')';
+        clause = 'AND';
     }
 
 
@@ -241,7 +230,7 @@ app.delete('api/remove-incident/:case_number', (req, res) => {
 
 
 // Create Promise for SQLite3 database SELECT query 
-function databaseSelect(query, params) {
+/*function databaseSelect(query, params) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
             if (err) {
@@ -267,6 +256,7 @@ function databaseRun(query, params) {
         });
     })
 }
+*/
 
 
 // Start server - listen for client connections
