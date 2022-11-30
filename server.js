@@ -37,16 +37,84 @@ function parseQueryString(q_string) {
 
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
+    let query = 'SELECT Codes.code, Codes.incident_type FROM Codes';
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+
+    let params = [];
+    let clause = 'WHERE';
+
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    if (req.query.hasOwnProperty('code')) {
+        query = query + ' ' + clause + ' Codes.code = ?';
+        params.push(parseFloat(req.query.code));
+
+        clause = 'AND';
+        
+
+         //I think this would work for comma separated values 
+        if (req.query.hasOwnProperty(',')) {
+            let codes = req.query.split(',');
+            for (let i=0; i < codes.length; i++) {
+                query = query + ' ' + clause + ' Codes.code = ' + codes[i];
+                params.push(parseFloat(req.query.code));
+            }
+        }
+        
+      
+    }
+
+    db.all(query, params, (err, rows) => {
+        console.log(err);
+        console.log(rows);
+        res.status(200).type('json').send(rows);
+     });
+     
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
+     let query = 'SELECT Neighborhoods.neighborhood_number as id, Neighborhoods.neighborhood_name as name FROM Neighborhoods';
+
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
-    res.status(200).type('json').send({}); // <-- you will need to change this
+
+    let params = [];
+    let clause = 'WHERE';
+
+     if(req.query.hasOwnProperty('id')){
+        let split_id = req.query.id.split(',');
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_number IN (?';
+        params.push(split_id[0]);
+        if(split_id.length > 0) {
+            for(let j = 1; j < split_id.length; j++) {
+                query = query + ' , ?';
+                params.push(split_id[1]);
+            }
+        }
+        query = query + ')';
+        clause = 'AND';
+    }
+   
+
+    /*if (req.query.hasOwnProperty('id')) {
+        console.log(req.query.id);
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_number = ?';
+        params.push(parseFloat(req.query.id));
+        clause = 'AND';
+    }*/
+
+    if (req.query.hasOwnProperty('name')) {
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_name = ?';
+        params.push(parseFloat(req.query.name));
+        clause = 'AND';
+    }
+
+
+    db.all(query, params, (err, rows) => {
+       // console.log(err);
+       // console.log(rows);
+        res.status(200).type('json').send(rows);
+    });
+
 });
 
 // GET request handler for crime incidents
