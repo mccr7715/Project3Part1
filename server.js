@@ -76,14 +76,28 @@ app.get('/neighborhoods', (req, res) => {
 
     let params = [];
     let clause = 'WHERE';
+
+     if(req.query.hasOwnProperty('id')){
+        let split_id = req.query.id.split(',');
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_number IN (?';
+        params.push(split_id[0]);
+        if(split_id.length > 0) {
+            for(let j = 1; j < split_id.length; j++) {
+                query = query + ' , ?';
+                params.push(split_id[1]);
+            }
+        }
+        query = query + ')';
+        clause = 'AND';
+    }
    
 
-    if (req.query.hasOwnProperty('id')) {
+    /*if (req.query.hasOwnProperty('id')) {
         console.log(req.query.id);
         query = query + ' ' + clause + ' Neighborhoods.neighborhood_number = ?';
         params.push(parseFloat(req.query.id));
         clause = 'AND';
-    }
+    }*/
 
     if (req.query.hasOwnProperty('name')) {
         query = query + ' ' + clause + ' Neighborhoods.neighborhood_name = ?';
