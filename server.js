@@ -37,9 +37,30 @@ function parseQueryString(q_string) {
 
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
+    let query = 'SELECT Codes.code, Codes.incident_type FROM Codes';
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+
+    let params = [];
+    let clause = WHERE;
+
+    if (req.query.hasOwnProperty('code')) {
+        query = query + ' ' + clause + ' Codes.code = ?';
+        params.push(parseFloat(req.query.code));
+        clause = 'AND';
+    }
+
+    if (req.query.hasOwnProperty('type')) {
+        console.log(req.query.id);
+        query = query + ' ' + clause + ' Codes.incident_type = ?';
+        params.push(parseFloat(req.query.type));
+        clause = 'AND';
+    }
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    db.all(query, params, (err, rows) => {
+        console.log(err);
+        console.log(rows);
+        res.status(200).type('json').send(rows);
+     });
 });
 
 // GET request handler for neighborhoods
