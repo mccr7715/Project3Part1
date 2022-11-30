@@ -185,7 +185,7 @@ app.get('/incidents', (req, res) => {
 });
 
 // PUT request handler for new crime incident
-app.put('/api/new-incident', (req, res) => {
+app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
     if (req.params.hasOwnProperty('case_number') && req.params.hasOwnProperty('date') &&
@@ -220,7 +220,7 @@ app.put('/api/new-incident', (req, res) => {
 });
 
 // DELETE request handler for new crime incident
-app.delete('api/remove-incident/:case_number', (req, res) => {
+app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
     databaseRun('DELETE FROM Incidents WHERE case_number = ', req.params.case_number);
