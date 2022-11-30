@@ -131,7 +131,7 @@ app.get('/incidents', (req, res) => {
                 Incidents.incident, Incidents.police_grid, Incidents.neighborhood_number,\
                 Incidents.block FROM Incidents';
 
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
+   // console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let params = [];
     let clause = 'WHERE';
@@ -161,18 +161,18 @@ app.get('/incidents', (req, res) => {
 
     if (req.query.hasOwnProperty('start_date')) {
         query = query + ' ' + clause + ' Incidents.date_time >= ?';
-        params.push(parseFloat(req.query.start_date));
+        params.push(req.query.start_date);
         clause = 'AND';
     }
 
     if (req.query.hasOwnProperty('end_date')) {
         query = query + ' ' + clause + ' Incidents.date_time <= ?';
-        params.push(parseFloat(req.query.end_date));
+        params.push(req.query.end_date);
         clause = 'AND';
     }
 
     db.all(query, params, (err, rows) => {
-        console.log(err);
+      //  console.log(err);
         let data = [];
         let dateTime = [];
 
@@ -184,7 +184,7 @@ app.get('/incidents', (req, res) => {
             "block": rows[i].block};
         }
 
-        console.log(data);
+       // console.log(data);
 
         res.status(200).type('json').send(rows);
     });
