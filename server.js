@@ -75,7 +75,7 @@ app.get('/codes', (req, res) => {
 app.get('/neighborhoods', (req, res) => {
      let query = 'SELECT Neighborhoods.neighborhood_number as id, Neighborhoods.neighborhood_name as name FROM Neighborhoods';
 
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
+    //console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let params = [];
     let clause = 'WHERE';
@@ -94,18 +94,18 @@ app.get('/neighborhoods', (req, res) => {
         clause = 'AND';
     }
    
-
-    /*if (req.query.hasOwnProperty('id')) {
-        console.log(req.query.id);
-        query = query + ' ' + clause + ' Neighborhoods.neighborhood_number = ?';
-        params.push(parseFloat(req.query.id));
-        clause = 'AND';
-    }*/
-
-    if (req.query.hasOwnProperty('name')) {
-        query = query + ' ' + clause + ' Neighborhoods.neighborhood_name = ?';
-        params.push(parseFloat(req.query.name));
-        clause = 'AND';
+    if(req.query.hasOwnProperty('name')){
+        let split_name = req.query.name.split(',');
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_name IN (?';
+        params.push(split_name[0]);
+        if(split_name.length > 0) {
+            for(let j = 1; j < split_name.length; j++) {
+                query = query + ' , ?';
+                params.push(split_name[1]);
+            }
+        }
+        query = query + ')';
+        clause = 'AND';
     }
 
 
