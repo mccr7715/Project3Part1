@@ -1,6 +1,7 @@
 // Built-in Node.js modules
 let fs = require('fs');
 let path = require('path');
+//let cors = require('cors');
 
 // NPM modules
 let express = require('express');
@@ -13,6 +14,7 @@ let app = express();
 let port = 8000;
 
 app.use(express.json());
+//app.use(cors());
 
 // Open SQLite3 database (in read-only mode)
 let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
