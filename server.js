@@ -43,7 +43,20 @@ app.get('/codes', (req, res) => {
     let params = [];
     let clause = 'WHERE';
 
-    
+    if(req.query.hasOwnProperty('code')){
+        let codes_split = req.query.code.split(',');
+        query = query + ' ' + clause + ' Codes.code IN (?';
+        params.push(codes_split[0]);
+        if(codes_split.length > 0) {
+            for(let j = 1; j < codes_split.length; j++) {
+                query = query + ' , ?';
+                params.push(codes_split[1]);
+            }
+        }
+        query = query + ')';
+        clause = 'AND';
+    }
+    /*
     if (req.query.hasOwnProperty('code')) {
         query = query + ' ' + clause + ' Codes.code = ?';
         params.push(parseFloat(req.query.code));
@@ -53,15 +66,16 @@ app.get('/codes', (req, res) => {
 
          //I think this would work for comma separated values 
         if (req.query.hasOwnProperty(',')) {
-            let codes = req.query.split(',');
+            let codes = req.query.code.split(',');
+            query = query + clause + 
             for (let i=0; i < codes.length; i++) {
                 query = query + ' ' + clause + ' Codes.code = ' + codes[i];
                 params.push(parseFloat(req.query.code));
             }
         }
         
-      
-    }
+      */
+    
 
     db.all(query, params, (err, rows) => {
         console.log(err);
