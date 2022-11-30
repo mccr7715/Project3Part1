@@ -46,9 +46,17 @@ app.get('/codes', (req, res) => {
     if (req.query.hasOwnProperty('code')) {
         query = query + ' ' + clause + ' Codes.code = ?';
         params.push(parseFloat(req.query.code));
+
         clause = 'AND';
+
+        /*
+        if (req.query.hasOwnProperty(',')) {
+            query = query + ' ' + clause + ' Codes.code = ?';
+            params.push(parseFloat(req.query.code));
+        }
+        */
     }
-     
+
     db.all(query, params, (err, rows) => {
         console.log(err);
         console.log(rows);
