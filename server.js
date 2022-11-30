@@ -123,7 +123,7 @@ app.get('/neighborhoods', (req, res) => {
 });
 
 // GET request handler for crime incidents
-app.get('api/incidents', (req, res) => {
+app.get('/incidents', (req, res) => {
     
     let query = 'SELECT Incidents.case_number AS case_number, Incidents.date_time, Incidents.code, \
                 Incidents.incident, Incidents.police_grid, Incidents.neighborhood_number,\
@@ -138,24 +138,6 @@ app.get('api/incidents', (req, res) => {
         params.push(req.query.mfr.toUpperCase());
         clause = 'AND';
     }*/
-
-    db.all(query, params, (err, rows) => {
-        console.log(err);
-        let data = [];
-        let dateTime = [];
-
-        for (i=0; i < rows.length; i++) {
-            dateTime = rows[i].date_time.split("T");
-            data[i] = {"case_number": rows[i].case_number, "date": dateTime[0],
-            "time": dateTime[1], "code": rows[i].code, "incident": rows[i].incident, 
-            "police_grid": rows[i].police_grid, "neighborhood_number": rows[i].neighborhood_number,
-            "block": rows[i].block};
-        }
-
-        console.log(data);
-
-        res.status(200).type('json').send(rows);
-    });
 
     if (req.query.hasOwnProperty('code')) {
         query = query + ' ' + clause + ' Incidents.code = ?';
@@ -180,6 +162,24 @@ app.get('api/incidents', (req, res) => {
         params.push(parseFloat(req.query.code));
         clause = 'AND';
     }
+
+    db.all(query, params, (err, rows) => {
+        console.log(err);
+        let data = [];
+        let dateTime = [];
+
+        for (i=0; i < rows.length; i++) {
+            dateTime = rows[i].date_time.split("T");
+            data[i] = {"case_number": rows[i].case_number, "date": dateTime[0],
+            "time": dateTime[1], "code": rows[i].code, "incident": rows[i].incident, 
+            "police_grid": rows[i].police_grid, "neighborhood_number": rows[i].neighborhood_number,
+            "block": rows[i].block};
+        }
+
+        console.log(data);
+
+        res.status(200).type('json').send(rows);
+    });
 
     /* res.status(200).type('json').send(databaseSelect(query, params)); // <-- you will need to change this*/
 });
