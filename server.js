@@ -51,7 +51,7 @@ app.get('/codes', (req, res) => {
         clause = 'AND';
         
 
-        /* //I think this would work for comma separated values 
+         //I think this would work for comma separated values 
         if (req.query.hasOwnProperty(',')) {
             let codes = req.query.split(',');
             for (let i=0; i < codes.length; i++) {
@@ -59,7 +59,7 @@ app.get('/codes', (req, res) => {
                 params.push(parseFloat(req.query.code));
             }
         }
-        */
+        
       
     }
 
