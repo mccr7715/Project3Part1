@@ -48,14 +48,7 @@ app.get('/codes', (req, res) => {
         params.push(parseFloat(req.query.code));
         clause = 'AND';
     }
-
-    if (req.query.hasOwnProperty('type')) {
-        console.log(req.query.id);
-        query = query + ' ' + clause + ' Codes.incident_type = ?';
-        params.push(parseFloat(req.query.type));
-        clause = 'AND';
-    }
-    
+     
     db.all(query, params, (err, rows) => {
         console.log(err);
         console.log(rows);
