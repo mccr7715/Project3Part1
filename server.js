@@ -49,12 +49,16 @@ app.get('/codes', (req, res) => {
 
         clause = 'AND';
 
-        /*
+        /* //I think this would work for comma separated values 
         if (req.query.hasOwnProperty(',')) {
-            query = query + ' ' + clause + ' Codes.code = ?';
-            params.push(parseFloat(req.query.code));
+            let codes = req.query.split(',');
+            for (let i=0; i < codes.length; i++) {
+                query = query + ' ' + clause + ' Codes.code = ' + codes[i];
+                params.push(parseFloat(req.query.code));
+            }
         }
         */
+        
     }
 
     db.all(query, params, (err, rows) => {
