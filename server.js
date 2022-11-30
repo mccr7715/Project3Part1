@@ -160,8 +160,14 @@ app.get('/incidents', (req, res) => {
     }
 
     if (req.query.hasOwnProperty('start_date')) {
-        query = query + ' ' + clause + ' Incidents.date_time = ?';
-        params.push(parseFloat(req.query.code));
+        query = query + ' ' + clause + ' Incidents.date_time >= ?';
+        params.push(parseFloat(req.query.start_date));
+        clause = 'AND';
+    }
+
+    if (req.query.hasOwnProperty('end_date')) {
+        query = query + ' ' + clause + ' Incidents.date_time <= ?';
+        params.push(parseFloat(req.query.end_date));
         clause = 'AND';
     }
 
