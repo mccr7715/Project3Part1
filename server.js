@@ -75,13 +75,10 @@ app.get('/codes', (req, res) => {
 app.get('/neighborhoods', (req, res) => {
      let query = 'SELECT Neighborhoods.neighborhood_number as id, Neighborhoods.neighborhood_name as name FROM Neighborhoods';
 
-<<<<<<< HEAD
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-=======
     //console.log(req.query); // query object (key-value pairs after the ? in the url)
 
->>>>>>> 86636f477709e794ab0fdb6cd6362e275c0deec8
     let params = [];
     let clause = 'WHERE';
 
