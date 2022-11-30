@@ -88,38 +88,39 @@ app.get('/codes', (req, res) => {
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
      let query = 'SELECT Neighborhoods.neighborhood_number as id, Neighborhoods.neighborhood_name as name FROM Neighborhoods';
-
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+
+    //console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     let params = [];
     let clause = 'WHERE';
 
      if(req.query.hasOwnProperty('id')){
-        let split_id = req.query.id.split(',');
-        query = query + ' ' + clause + ' Neighborhoods.neighborhood_number IN (?';
+        let split_id = req.query.id.split(',');
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_number IN (?';
         params.push(split_id[0]);
-        if(split_id.length > 0) {
-            for(let j = 1; j < split_id.length; j++) {
-                query = query + ' , ?';
+        if(split_id.length > 0) {
+            for(let j = 1; j < split_id.length; j++) {
+                query = query + ' , ?';
                 params.push(split_id[1]);
+            }
+        }
+        query = query + ')';
+        clause = 'AND';
+    }
+   
+    if(req.query.hasOwnProperty('name')){
+        let split_name = req.query.name.split(',');
+        query = query + ' ' + clause + ' Neighborhoods.neighborhood_name IN (?';
+        params.push(split_name[0]);
+        if(split_name.length > 0) {
+            for(let j = 1; j < split_name.length; j++) {
+                query = query + ' , ?';
+                params.push(split_name[1]);
             }
         }
         query = query + ')';
         clause = 'AND';
-    }
-   
-
-    /*if (req.query.hasOwnProperty('id')) {
-        console.log(req.query.id);
-        query = query + ' ' + clause + ' Neighborhoods.neighborhood_number = ?';
-        params.push(parseFloat(req.query.id));
-        clause = 'AND';
-    }*/
-
-    if (req.query.hasOwnProperty('name')) {
-        query = query + ' ' + clause + ' Neighborhoods.neighborhood_name = ?';
-        params.push(parseFloat(req.query.name));
-        clause = 'AND';
     }
 
 
@@ -132,7 +133,7 @@ app.get('/neighborhoods', (req, res) => {
 });
 
 // GET request handler for crime incidents
-app.get('/api/incidents', (req, res) => {
+app.get('api/incidents', (req, res) => {
     
     let query = 'SELECT Incidents.case_number AS case_number, Incidents.date_time, Incidents.code, \
                 Incidents.incident, Incidents.police_grid, Incidents.neighborhood_number,\
@@ -147,6 +148,24 @@ app.get('/api/incidents', (req, res) => {
         params.push(req.query.mfr.toUpperCase());
         clause = 'AND';
     }*/
+
+    db.all(query, params, (err, rows) => {
+        console.log(err);
+        let data = [];
+        let dateTime = [];
+
+        for (i=0; i < rows.length; i++) {
+            dateTime = rows[i].date_time.split("T");
+            data[i] = {"case_number": rows[i].case_number, "date": dateTime[0],
+            "time": dateTime[1], "code": rows[i].code, "incident": rows[i].incident, 
+            "police_grid": rows[i].police_grid, "neighborhood_number": rows[i].neighborhood_number,
+            "block": rows[i].block};
+        }
+
+        console.log(data);
+
+        res.status(200).type('json').send(rows);
+    });
 
     if (req.query.hasOwnProperty('code')) {
         query = query + ' ' + clause + ' Incidents.code = ?';
@@ -171,12 +190,6 @@ app.get('/api/incidents', (req, res) => {
         params.push(parseFloat(req.query.code));
         clause = 'AND';
     }
-
-    db.all(query, params, (err, rows) => {
-        console.log(err);
-        console.log(rows);
-        res.status(200).type('json').send(rows);
-    });
 
     /* res.status(200).type('json').send(databaseSelect(query, params)); // <-- you will need to change this*/
 });
