@@ -225,7 +225,7 @@ app.put('/new-incident', (req, res) => {
         let params = [];
 
         params.push(req.body.case_number);
-        params.push(req.body.date + 'T' + req.body.time);
+        params.push(req.body.date + req.body.time);
         params.push(req.body.code);
         params.push(req.body.incident);
         params.push(req.body.police_grid);
