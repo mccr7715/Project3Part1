@@ -221,7 +221,50 @@ app.get('/incidents', (req, res) => {
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
-    if (req.params.hasOwnProperty('case_number') && req.params.hasOwnProperty('date') &&
+    if ('IF NOT EXISTS (SELECT case_number FROM Incidents)') {
+        let params = [];
+
+        params.push(req.body.case_number);
+        params.push(req.body.date + 'T' + req.body.time);
+        params.push(req.body.code);
+        params.push(req.body.incident);
+        params.push(req.body.police_grid);
+        params.push(req.body.neighborhood_number);
+        params.push(req.body.block);
+
+        let insertquery = 'INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
+            VALUES (' + req.body.case_number + ', ' + req.body.date + 'T' + req.body.time + ', ' + req.body.code + '\
+            , ' + req.body.incident + ', ' + req.body.police_grid + ', ' + req.body.neighborhood_number + '\
+            , ' + req.body.block + ')';
+        databaseRun(insertquery, params);
+        res.status(200).type('txt').send('Data inserted');
+    }
+    else {
+        res.status(500).type('txt').send('Error: Case number already exist.');
+    }
+
+    /*
+    if ('IF EXISTS (SELECT case_number FROM Incidents' == false) {
+        res.status(500);
+    }
+    else {
+        for (i = 0; i < rows.length; i++) {
+                let query = 'INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
+                VALUES (' + req.params.case_number + ', ' + req.params.date + 'T' + req.params.time + ', ' + req.params.code + '\
+                , ' + req.params.incident + ', ' + req.params.police_grid + ', ' + req.params.neighborhood_number + '\
+                , ' + req.params.block + ')';
+
+                console.log()
+
+                db.all(query, params, (err, rows) => {
+                    console.log(err);
+                    console.log(rows);
+                    res.status(200).type('json').send(rows);
+                });
+        }
+    }*/
+
+    /*if (req.params.hasOwnProperty('case_number') && req.params.hasOwnProperty('date') &&
     req.params.hasOwnProperty('time') && req.params.hasOwnProperty('code') && 
     req.params.hasOwnProperty('incident') && req.params.hasOwnProperty('police_grid') &&
     req.params.hasOwnProperty('neighborhood_number') && req.params.hasOwnProperty('block')) {
@@ -247,18 +290,22 @@ app.put('/new-incident', (req, res) => {
     }
     else {
         res.status(200).type('txt').send('Error: Cannot add new incident');
-    }
+    }*/
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    /*res.status(200).type('txt').send('OK'); // <-- you may need to change this*/
 });
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
-    
-    databaseRun('DELETE FROM Incidents WHERE case_number = ', req.params.case_number);
-
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    if ('IF EXISTS (SELECT case_number FROM Incidents)') {
+        let deletequery = 'DELETE FROM Incidents WHERE case_number = ?';
+        databaseRun(deletequery, parseInt(req.body.case_number));
+        res.status(200).type('txt').send('Data deleted');
+    }
+    else {
+        res.status(500).type('txt').send('Error: Case number does not exist.');
+    }
 });
 
 
