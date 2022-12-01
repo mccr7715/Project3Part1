@@ -105,7 +105,7 @@ app.get('/neighborhoods', (req, res) => {
         let split_name = req.query.name.split(',');
         query = query + ' ' + clause + ' Neighborhoods.neighborhood_name IN (?';
         params.push(split_name[0]);
-        if(split_name.length > 0) {
+        if(split_name.length > 0) {
             for(let j = 1; j < split_name.length; j++) {
                 query = query + ' , ?';
                 params.push(split_name[1]);
@@ -135,39 +135,64 @@ app.get('/incidents', (req, res) => {
 
     let params = [];
     let clause = 'WHERE';
-    /* if (req.query.hasOwnProperty('start_date')) {
-        query = query + ' ' + clause + ' Incidents.date_time = ?';
-        params.push(req.query.mfr.toUpperCase());
-        clause = 'AND';
-    }*/
 
     if (req.query.hasOwnProperty('code')) {
-        query = query + ' ' + clause + ' Incidents.code = ?';
-        params.push(parseFloat(req.query.code));
+        let split_code = req.query.code.split(',');
+        query = query + ' ' + clause + ' Incidents.code IN (?';
+        params.push(split_code[0]);
+        if(split_code.length > 0) {
+            for(let j = 1; j < split_code.length; j++) {
+                query = query + ' , ?';
+                params.push(split_code[1]);
+            }
+        }
+        query = query + ')';
         clause = 'AND';
     }
 
     if (req.query.hasOwnProperty('grid')) {
-        query = query + ' ' + clause + ' Incidents.police_grid = ?';
-        params.push(parseFloat(req.query.grid));
+        let split_grid = req.query.grid.split(',');
+        query = query + ' ' + clause + ' Incidents.police_grid IN (?';
+        params.push(split_grid[0]);
+        if(split_grid.length > 0) {
+            for(let j = 1; j < split_grid.length; j++) {
+                query = query + ' , ?';
+                params.push(split_grid[1]);
+            }
+        }
+        query = query + ')';
         clause = 'AND';
     }
 
     if (req.query.hasOwnProperty('neighborhood')) {
-        query = query + ' ' + clause + ' Incidents.neighborhood_number = ?';
-        params.push(parseFloat(req.query.neighborhood));
+        let split_neighborhood = req.query.neighborhood.split(',');
+        query = query + ' ' + clause + ' Incidents.neighborhood_number IN (?';
+        params.push(split_neighborhood[0]);
+        if(split_neighborhood.length > 0) {
+            for(let j = 1; j < split_neighborhood.length; j++) {
+                query = query + ' , ?';
+                params.push(split_neighborhood[1]);
+            }
+        }
+        query = query + ')';
         clause = 'AND';
     }
 
     if (req.query.hasOwnProperty('start_date')) {
-        query = query + ' ' + clause + ' Incidents.date_time >= ?';
-        params.push(req.query.start_date);
+        date = '"' + req.query.start_date + '"';
+        query = query + ' ' + clause + ' Incidents.date_time >= ' + date;
         clause = 'AND';
     }
 
     if (req.query.hasOwnProperty('end_date')) {
-        query = query + ' ' + clause + ' Incidents.date_time <= ?';
-        params.push(req.query.end_date);
+        date = '"' + req.query.end_date + '"';
+        query = query + ' ' + clause + ' Incidents.date_time <= ' + date;
+        clause = 'AND';
+    }
+
+    if (req.query.hasOwnProperty('limit')) {
+        int_limit = parseInt(req.query.limit);
+        query = query + ' LIMIT ' + int_limit;
         clause = 'AND';
     }
 
@@ -249,7 +274,7 @@ app.delete('/remove-incident', (req, res) => {
             }
         })
     })
-}
+}*/
 
 // Create Promise for SQLite3 database INSERT or DELETE query
 function databaseRun(query, params) {
@@ -264,7 +289,6 @@ function databaseRun(query, params) {
         });
     })
 }
-*/
 
 
 // Start server - listen for client connections
