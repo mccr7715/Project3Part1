@@ -232,8 +232,12 @@ app.put('/new-incident', (req, res) => {
         params.push(req.body.neighborhood_number);
         params.push(req.body.block);
 
-        let insertquery = 'INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
-            VALUES (' + req.body.case_number + ', ' + req.body.date + 'T' + req.body.time + ', ' + req.body.code + '\
+        dateTime = '' + req.body.date + ' ' + req.body.time;
+
+        let insertquery = 'DECLARE @Date DATE = ' + req.body.date + ', @Time TIME = ' + req.body.time +'; \
+            SELECT DateTime1=CAST(@Date AS DATETIME) + CAST(@Time AS DATETIME); \
+            INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
+            VALUES (' + req.body.case_number + ', ' + dateTime + ', ' + req.body.code + '\
             , ' + req.body.incident + ', ' + req.body.police_grid + ', ' + req.body.neighborhood_number + '\
             , ' + req.body.block + ')';
         databaseRun(insertquery, params);
