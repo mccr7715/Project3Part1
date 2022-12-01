@@ -232,7 +232,7 @@ app.put('/new-incident', (req, res) => {
         params.push(req.body.neighborhood_number);
         params.push(req.body.block);
 
-        dateTime = '' + req.body.date + ' ' + req.body.time;
+        dateTime = '' + req.body.date + 'T' + req.body.time;
 
         let insertquery = 'DECLARE @Date DATE = ' + req.body.date + ', @Time TIME = ' + req.body.time +'; \
             SELECT DateTime1=CAST(@Date AS DATETIME) + CAST(@Time AS DATETIME); \
