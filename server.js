@@ -244,7 +244,7 @@ app.put('/new-incident', (req, res) => {
         res.status(200).type('txt').send('Data inserted');
     }
     else {
-        res.status(500).type('txt').send('Error: Case number already exist.');
+        res.status(500).type('txt').send('Error: Case number already exists.');
     }
 
     /*
