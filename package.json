@@ -3,17 +3,17 @@
     "version": "0.0.0",
     "description": "RESTful API Server using Node JS",
     "author": {
-        "name": "",
-        "email": ""
+        "name": "Lizzie Paterson",
+        "email": "pate4786@stthomas.edu"
     },
     "contributors": [
         {
-            "name": "",
-            "email": ""
+            "name": "Anna Curtler",
+            "email": "curt8897@stthomas.edu"
         },
         {
-            "name": "",
-            "email": ""
+            "name": "Lizzie McCracken",
+            "email": "mccr7715@stthomas.edu"
         }
     ],
     "main": "server.js",
