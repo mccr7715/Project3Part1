@@ -237,7 +237,7 @@ app.put('/new-incident', (req, res) => {
         params.push(req.body.neighborhood_number);
         params.push(req.body.block);
 
-        dateTime = '' + req.body.date + ' ' + req.body.time;
+        dateTime = '' + req.body.date + 'T' + req.body.time;
 
         let insertquery = 'DECLARE @Date DATE = ' + req.body.date + ', @Time TIME = ' + req.body.time +'; \
             SELECT DateTime1=CAST(@Date AS DATETIME) + CAST(@Time AS DATETIME); \
@@ -249,7 +249,7 @@ app.put('/new-incident', (req, res) => {
         res.status(200).type('txt').send('Data inserted');
     }
     else {
-        res.status(500).type('txt').send('Error: Case number already exist.');
+        res.status(500).type('txt').send('Error: Case number already exists.');
     }
 
     /*
