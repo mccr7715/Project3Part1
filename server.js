@@ -196,11 +196,16 @@ app.get('/incidents', (req, res) => {
         clause = 'AND';
     }
 
+    query = query + ' ORDER BY date_time';
+
+    if (!req.query.hasOwnProperty('limit')) {
+        query = query + ' LIMIT 1000';
+    }
+
     db.all(query, params, (err, rows) => {
       //  console.log(err);
         let data = [];
         let dateTime = [];
-
         for (i=0; i < rows.length; i++) {
             dateTime = rows[i].date_time.split("T");
             data[i] = {"case_number": rows[i].case_number, "date": dateTime[0],
