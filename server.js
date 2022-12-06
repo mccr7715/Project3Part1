@@ -8,7 +8,7 @@ let express = require('express');
 let sqlite3 = require('sqlite3');
 
 
-let db_filename = path.join(__dirname, 'db', 'stpaul_crime_copy.sqlite3');
+let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
 
 let app = express();
 let port = 8000;
@@ -226,37 +226,33 @@ app.get('/incidents', (req, res) => {
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
     
-    if ('IF NOT EXISTS (SELECT case_number FROM Incidents)') {
-        let params = [];
+    let query = 'SELECT * FROM Incidents WHERE Incidents.case_number = ' + req.body.case_number;
 
-        params.push(req.body.case_number);
-        params.push(req.body.date + req.body.time);
-        params.push(req.body.code);
-        params.push(req.body.incident);
-        params.push(req.body.police_grid);
-        params.push(req.body.neighborhood_number);
-        params.push(req.body.block);
+    let params = [];
+    db.all(query, (err, rows) => {
+        if (rows.length > 0) {
+            console.log("Error: Case number already exists. Please try again.")
+            res.status(500).type('txt').send(err);
+        }
+        else {
+            console.log("Adding new incident...");
+            let new_incident_query = "INSERT INTO Incidents (case_number, date_time, code, incident, \
+                police_grid, neighborhood_number, block) VALUES (" + req.body.case_number + ", '" + req.body.date + "\
+                T" + req.body.time + "', " + req.body.code + ", '" + req.body.incident + "', " + req.body.police_grid + "\
+                , " + req.body.neighborhood_number + ", '" + req.body.block + "')";
+            console.log(new_incident_query);
+            db.run(new_incident_query, params, (err) => {
+                if (err) { 
+                    res.status(404).type('txt').send(err);
+                }
+                else {
+                    console.log("Successfully added new incident.");
+                }
+            });
+        }
+    });
 
-        dateTime = '' + req.body.date + 'T' + req.body.time;
-
-        let insertquery = 'DECLARE @Date DATE = ' + req.body.date + ', @Time TIME = ' + req.body.time +'; \
-            SELECT DateTime1=CAST(@Date AS DATETIME) + CAST(@Time AS DATETIME); \
-            INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
-            VALUES (' + req.body.case_number + ', ' + dateTime + ', ' + req.body.code + '\
-            , ' + req.body.incident + ', ' + req.body.police_grid + ', ' + req.body.neighborhood_number + '\
-            , ' + req.body.block + ')';
-        databaseRun(insertquery, params);
-        res.status(200).type('txt').send('Data inserted');
-    }
-    else {
-        res.status(500).type('txt').send('Error: Case number already exists.');
-    }
-
-    /*
-    if ('IF EXISTS (SELECT case_number FROM Incidents' == false) {
-        res.status(500);
-    }
-    else {
+    /*else {
         for (i = 0; i < rows.length; i++) {
                 let query = 'INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
                 VALUES (' + req.params.case_number + ', ' + req.params.date + 'T' + req.params.time + ', ' + req.params.code + '\
@@ -300,8 +296,6 @@ app.put('/new-incident', (req, res) => {
     else {
         res.status(200).type('txt').send('Error: Cannot add new incident');
     }*/
-
-    /*res.status(200).type('txt').send('OK'); // <-- you may need to change this*/
 });
 
 // DELETE request handler for new crime incident
