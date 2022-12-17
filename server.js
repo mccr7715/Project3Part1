@@ -6,15 +6,15 @@ let path = require('path');
 // NPM modules
 let express = require('express');
 let sqlite3 = require('sqlite3');
+let cors = require('cors');
 
-
-let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
+let db_filename = path.join(__dirname, 'db', 'stpaul_crime_copy.sqlite3');
 
 let app = express();
 let port = 8000;
 
 app.use(express.json());
-//app.use(cors());
+app.use(cors());
 
 // Open SQLite3 database (in read-only mode)
 let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
@@ -196,7 +196,7 @@ app.get('/incidents', (req, res) => {
         clause = 'AND';
     }
 
-    query = query + ' ORDER BY date_time';
+    query = query + ' ORDER BY date_time DESC';
 
     if (!req.query.hasOwnProperty('limit')) {
         query = query + ' LIMIT 1000';
@@ -216,7 +216,7 @@ app.get('/incidents', (req, res) => {
 
        // console.log(data);
 
-        res.status(200).type('json').send(rows);
+        res.status(200).type('json').send(data);
     });
 
     /* res.status(200).type('json').send(databaseSelect(query, params)); // <-- you will need to change this*/
@@ -252,93 +252,32 @@ app.put('/new-incident', (req, res) => {
         }
     });
 
-    /*else {
-        for (i = 0; i < rows.length; i++) {
-                let query = 'INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
-                VALUES (' + req.params.case_number + ', ' + req.params.date + 'T' + req.params.time + ', ' + req.params.code + '\
-                , ' + req.params.incident + ', ' + req.params.police_grid + ', ' + req.params.neighborhood_number + '\
-                , ' + req.params.block + ')';
-
-                console.log()
-
-                db.all(query, params, (err, rows) => {
-                    console.log(err);
-                    console.log(rows);
-                    res.status(200).type('json').send(rows);
-                });
-        }
-    }*/
-
-    /*if (req.params.hasOwnProperty('case_number') && req.params.hasOwnProperty('date') &&
-    req.params.hasOwnProperty('time') && req.params.hasOwnProperty('code') && 
-    req.params.hasOwnProperty('incident') && req.params.hasOwnProperty('police_grid') &&
-    req.params.hasOwnProperty('neighborhood_number') && req.params.hasOwnProperty('block')) {
-        for (i = 0; i < rows.length; i++) {
-            if (rows[i].case_number == req.params.case_number) {
-                res.status(500);
-            }
-            else {
-                let query = 'INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) \
-                VALUES (' + req.params.case_number + ', ' + req.params.date + 'T' + req.params.time + ', ' + req.params.code + '\
-                , ' + req.params.incident + ', ' + req.params.police_grid + ', ' + req.params.neighborhood_number + '\
-                , ' + req.params.block + ')';
-
-                console.log()
-
-                db.all(query, params, (err, rows) => {
-                    console.log(err);
-                    console.log(rows);
-                    res.status(200).type('json').send(rows);
-                });
-            }
-        }
-    }
-    else {
-        res.status(200).type('txt').send('Error: Cannot add new incident');
-    }*/
 });
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
     console.log(req.body); // uploaded data
-    if ('IF EXISTS (SELECT case_number FROM Incidents)') {
-        let deletequery = 'DELETE FROM Incidents WHERE case_number = ?';
-        databaseRun(deletequery, parseInt(req.body.case_number));
-        res.status(200).type('txt').send('Data deleted');
-    }
-    else {
-        res.status(500).type('txt').send('Error: Case number does not exist.');
-    }
+
+    let query = 'SELECT * FROM Incidents WHERE Incidents.case_number = ' + req.body.case_number;
+
+    db.all(query, (err, rows) => {
+        if (rows.length > 0) {
+            let deletequery = 'DELETE FROM Incidents WHERE case_number = ?';
+            db.run(deletequery, parseInt(req.body.case_number), (err) => {
+                if (err) { 
+                    res.status(404).type('txt').send(err);
+                }
+                else {
+                    res.status(200).type('txt').send('Data deleted');
+                }
+            });
+        }
+        else {
+            res.status(500).type('txt').send('Error: Case number does not exist.');
+        }
+    });
+
 });
-
-
-// Create Promise for SQLite3 database SELECT query 
-/*function databaseSelect(query, params) {
-    return new Promise((resolve, reject) => {
-        db.all(query, params, (err, rows) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve(rows);
-            }
-        })
-    })
-}*/
-
-// Create Promise for SQLite3 database INSERT or DELETE query
-function databaseRun(query, params) {
-    return new Promise((resolve, reject) => {
-        db.run(query, params, (err) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve();
-            }
-        });
-    })
-}
 
 
 // Start server - listen for client connections
