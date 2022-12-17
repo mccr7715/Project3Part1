@@ -190,13 +190,13 @@ app.get('/incidents', (req, res) => {
         clause = 'AND';
     }
 
+    query = query + ' ORDER BY date_time DESC';
+
     if (req.query.hasOwnProperty('limit')) {
         int_limit = parseInt(req.query.limit);
         query = query + ' LIMIT ' + int_limit;
         clause = 'AND';
     }
-
-    query = query + ' ORDER BY date_time DESC';
 
     if (!req.query.hasOwnProperty('limit')) {
         query = query + ' LIMIT 1000';
