@@ -141,7 +141,7 @@ app.get('/incidents', (req, res) => {
         query = query + ' ' + clause + ' Incidents.code IN (?';
         params.push(split_code[0]);
         if(split_code.length > 0) {
-            for(let j = 1; j < split_code.length; j++) {
+            for(let j = 0; j < split_code.length; j++) {
                 query = query + ' , ?';
                 params.push(split_code[1]);
             }
