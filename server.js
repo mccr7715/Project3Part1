@@ -1,14 +1,13 @@
 // Built-in Node.js modules
 let fs = require('fs');
 let path = require('path');
-//let cors = require('cors');
 
 // NPM modules
 let express = require('express');
 let sqlite3 = require('sqlite3');
 let cors = require('cors');
 
-let db_filename = path.join(__dirname, 'db', 'stpaul_crime_copy.sqlite3');
+let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
 
 let app = express();
 let port = 8000;
@@ -29,8 +28,6 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     let query = 'SELECT Codes.code, Codes.incident_type FROM Codes';
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
-
     let params = [];
     let clause = 'WHERE';
 
@@ -46,31 +43,9 @@ app.get('/codes', (req, res) => {
         }
         query = query + ')';
         clause = 'AND';
-    }
-    /*
-    if (req.query.hasOwnProperty('code')) {
-        query = query + ' ' + clause + ' Codes.code = ?';
-        params.push(parseFloat(req.query.code));
-
-        clause = 'AND';
-        
-
-         //I think this would work for comma separated values 
-        if (req.query.hasOwnProperty(',')) {
-            let codes = req.query.code.split(',');
-            query = query + clause + 
-            for (let i=0; i < codes.length; i++) {
-                query = query + ' ' + clause + ' Codes.code = ' + codes[i];
-                params.push(parseFloat(req.query.code));
-            }
-        }
-        
-      */
-    
+    } 
 
     db.all(query, params, (err, rows) => {
-        console.log(err);
-        console.log(rows);
         res.status(200).type('json').send(rows);
      });
      
@@ -78,12 +53,7 @@ app.get('/codes', (req, res) => {
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
-     let query = 'SELECT Neighborhoods.neighborhood_number as id, Neighborhoods.neighborhood_name as name FROM Neighborhoods';
-
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
-    //console.log(req.query); // query object (key-value pairs after the ? in the url)
-
+    let query = 'SELECT Neighborhoods.neighborhood_number as id, Neighborhoods.neighborhood_name as name FROM Neighborhoods';
     let params = [];
     let clause = 'WHERE';
 
@@ -117,8 +87,6 @@ app.get('/neighborhoods', (req, res) => {
 
 
     db.all(query, params, (err, rows) => {
-       // console.log(err);
-       // console.log(rows);
         res.status(200).type('json').send(rows);
     });
 
@@ -130,9 +98,6 @@ app.get('/incidents', (req, res) => {
     let query = 'SELECT Incidents.case_number AS case_number, Incidents.date_time, Incidents.code, \
                 Incidents.incident, Incidents.police_grid, Incidents.neighborhood_number,\
                 Incidents.block FROM Incidents';
-
-   // console.log(req.query); // query object (key-value pairs after the ? in the url)
-
     let params = [];
     let clause = 'WHERE';
 
@@ -203,7 +168,6 @@ app.get('/incidents', (req, res) => {
     }
 
     db.all(query, params, (err, rows) => {
-      //  console.log(err);
         let data = [];
         let dateTime = [];
         for (i=0; i < rows.length; i++) {
@@ -214,18 +178,13 @@ app.get('/incidents', (req, res) => {
             "block": rows[i].block};
         }
 
-       // console.log(data);
-
         res.status(200).type('json').send(data);
     });
 
-    /* res.status(200).type('json').send(databaseSelect(query, params)); // <-- you will need to change this*/
 });
 
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
-    console.log(req.body); // uploaded data
-    
     let query = 'SELECT * FROM Incidents WHERE Incidents.case_number = ' + req.body.case_number;
 
     let params = [];
@@ -240,7 +199,7 @@ app.put('/new-incident', (req, res) => {
                 police_grid, neighborhood_number, block) VALUES (" + req.body.case_number + ", '" + req.body.date + "\
                 T" + req.body.time + "', " + req.body.code + ", '" + req.body.incident + "', " + req.body.police_grid + "\
                 , " + req.body.neighborhood_number + ", '" + req.body.block + "')";
-            console.log(new_incident_query);
+
             db.run(new_incident_query, params, (err) => {
                 if (err) { 
                     res.status(404).type('txt').send(err);
@@ -256,8 +215,6 @@ app.put('/new-incident', (req, res) => {
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
-    console.log(req.body); // uploaded data
-
     let query = 'SELECT * FROM Incidents WHERE Incidents.case_number = ' + req.body.case_number;
 
     db.all(query, (err, rows) => {
@@ -278,7 +235,6 @@ app.delete('/remove-incident', (req, res) => {
     });
 
 });
-
 
 // Start server - listen for client connections
 app.listen(port, () => {
